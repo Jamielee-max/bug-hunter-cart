@@ -72,7 +72,7 @@ public class ShoppingCart {
 
     private double newCustomerDiscountAmount() {
         double discount = 0.0;
-        for (int i = 0; i <= NEW_CUSTOMER_DISCOUNT_ITEM_COUNT && i < insertionOrder.size(); i++) {
+        for (int i = 0; i < NEW_CUSTOMER_DISCOUNT_ITEM_COUNT && i < insertionOrder.size(); i++) {
             CartItem item = insertionOrder.get(i);
             discount += item.getUnitPrice() * NEW_CUSTOMER_DISCOUNT_RATE;
         }
