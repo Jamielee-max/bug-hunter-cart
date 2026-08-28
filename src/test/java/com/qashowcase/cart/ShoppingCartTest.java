@@ -76,6 +76,30 @@ class ShoppingCartTest {
     // (Hint: watch out for TODO 1's discount affecting your subtotal
     //  math while you set this test up.)
     //
+    @Test
+    void shipping_isFreeWhenSubtotalIsExactlyThreshold() {
+        ShoppingCart cart = new ShoppingCart(stock);
+
+        // Add 3+ items so the new-customer discount (fixed in TODO 1) is
+        // already "used up" and doesn't interfere with hitting $50 exactly.
+        cart.addItem("Widget", 10.00, 1);   // discounted
+        cart.addItem("Gadget", 20.00, 1);   // discounted
+        cart.addItem("Gizmo", 10.00, 1);    // not discounted (3rd item)
+
+        // rawSubtotal = 10 + 20 + 10 = 40.00
+        // discount = (10 + 20) * 0.20 = 6.00
+        // subtotal = 40.00 - 6.00 = 34.00 ... not quite $50, so add one more item
+
+        cart.addItem("Doohickey", 16.00, 1); // not discounted either
+
+        // rawSubtotal = 40 + 16 = 56.00
+        // subtotal = 56.00 - 6.00 = 50.00 exactly
+
+        assertEquals(50.00, cart.getSubtotal(), 0.001, "sanity check on subtotal math");
+        assertEquals(0.0, cart.getShippingCost(), 0.001,
+                "Shipping should be free at exactly $50, not just above it");
+    }
+
 
     //
     // TODO 3: Tax should be calculated precisely to the cent. Try a
