@@ -107,19 +107,35 @@ class ShoppingCartTest {
     // something that doesn't divide evenly at 15% tax. Compare with
     // assertEquals(expected, actual, delta) vs. exact equality —
     // which one exposes the bug?
-    // ---------------------------------------------------------------
+    //
+    @Test
+    void tax_isPreciseToTheCent() {
+        ShoppingCart cart = new ShoppingCart(stock);
 
-    // ---------------------------------------------------------------
+        // A single item, no discount interference, chosen so 15% tax
+        // doesn't land on a "clean" float value.
+        cart.addItem("Widget", 19.99, 1);
+
+        double expectedTax = 19.99 * 0.15; // 2.9985 -> should round/behave like 2.9985 in double precision
+
+        // Using a tight delta here is the point: float math tends to drift
+        // by more than this at the cent level, so this should catch it.
+        assertEquals(expectedTax, cart.getTax(), 0.0001,
+                "Tax should match double-precision arithmetic, not drift due to float rounding");
+    }
+
+
+    //
     // TODO 4: getMostExpensiveItemName() on an empty cart should fail
     // gracefully (or return something sensible) instead of throwing an
     // unchecked NullPointerException. Decide what the *correct*
     // behaviour should be, then write a test for it.
-    // ---------------------------------------------------------------
+    //
 
-    // ---------------------------------------------------------------
+    //
     // TODO 5: Two separate ShoppingCart instances should not affect
     // each other. Create cart A, add 2 items to it. Then create a
     // brand new cart B and add 1 item to it. Does cart B's subtotal
     // look right, or does it seem to "remember" cart A's items?
-    // ---------------------------------------------------------------
+    //
 }
