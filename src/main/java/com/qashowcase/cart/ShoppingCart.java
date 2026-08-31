@@ -86,9 +86,10 @@ public class ShoppingCart {
     }
 
     public double getShippingCost() {
-        if (getSubtotal() > FREE_SHIPPING_THRESHOLD) {
+        if (getSubtotal() >= FREE_SHIPPING_THRESHOLD) {
             return 0.0;
         }
+
         return FLAT_SHIPPING_COST;
     }
 
