@@ -33,12 +33,11 @@ class ShoppingCartTest {
         stock.put("Doohickey", 10);
     }
 
-    //
-
+    // ---------------------------------------------------------------
     // WORKED EXAMPLE — stock check. This one is already correct code,
     // just here to show you the pattern. Run it to confirm the project
     // is wired up correctly before you start hunting bugs.
-    //
+    // ---------------------------------------------------------------
     @Test
     void addItem_throwsWhenNotEnoughStock() {
         ShoppingCart cart = new ShoppingCart(stock);
@@ -46,12 +45,11 @@ class ShoppingCartTest {
                 () -> cart.addItem("Widget", 9.99, 999));
     }
 
-    //
+
     // TODO 1: New-customer discount should apply to the first 2 items
     // added to the cart, not the first 3. Write a test that adds 3
     // different items and checks the subtotal reflects a discount on
-    // only the first 2. What do you expect it to find?
-    //
+
     @Test
     void newCustomerDiscount_appliesToFirstTwoItemsOnly() {
         ShoppingCart cart = new ShoppingCart(stock);
@@ -69,13 +67,11 @@ class ShoppingCartTest {
                 "Discount should only apply to the first 2 items added, not the 3rd");
     }
 
-
-    //
     // TODO 2: Free shipping should kick in at exactly $50, not just
     // above it. Write a boundary test at precisely $50 subtotal.
     // (Hint: watch out for TODO 1's discount affecting your subtotal
     //  math while you set this test up.)
-    //
+
     @Test
     void shipping_isFreeWhenSubtotalIsExactlyThreshold() {
         ShoppingCart cart = new ShoppingCart(stock);
@@ -100,14 +96,12 @@ class ShoppingCartTest {
                 "Shipping should be free at exactly $50, not just above it");
     }
 
-
-    //
     // TODO 3: Tax should be calculated precisely to the cent. Try a
     // subtotal that's likely to expose floating point drift, e.g.
     // something that doesn't divide evenly at 15% tax. Compare with
     // assertEquals(expected, actual, delta) vs. exact equality —
     // which one exposes the bug?
-    //
+
     @Test
     void tax_isPreciseToTheCent() {
         ShoppingCart cart = new ShoppingCart(stock);
@@ -124,30 +118,28 @@ class ShoppingCartTest {
                 "Tax should match double-precision arithmetic, not drift due to float rounding");
     }
 
-
-    //
     // TODO 4: getMostExpensiveItemName() on an empty cart should fail
     // gracefully (or return something sensible) instead of throwing an
     // unchecked NullPointerException. Decide what the *correct*
     // behaviour should be, then write a test for it.
-       @Test
-     void getMostExpensiveItemName_throwsClearExceptionWhenCartIsEmpty() {
-          ShoppingCart cart = new ShoppingCart(stock);
-    //
-    //        // Cart has no items added. Calling this should fail with a clear,
-    //        // documented exception (IllegalStateException) explaining why --
-    //        // not an unchecked NullPointerException with no context.
-           IllegalStateException thrown = assertThrows(IllegalStateException.class,
-                   cart::getMostExpensiveItemName);
 
-           assertTrue(thrown.getMessage().toLowerCase().contains("empty"),
-                   "Exception message should explain that the cart is empty");
-        }
+    @Test
+    void getMostExpensiveItemName_throwsClearExceptionWhenCartIsEmpty() {
+        ShoppingCart cart = new ShoppingCart(stock);
 
-    //
+        // Cart has no items added. Calling this should fail with a clear,
+        // documented exception (IllegalStateException) explaining why --
+        // not an unchecked NullPointerException with no context.
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                cart::getMostExpensiveItemName);
+
+        assertTrue(thrown.getMessage().toLowerCase().contains("empty"),
+                "Exception message should explain that the cart is empty");
+    }
+
     // TODO 5: Two separate ShoppingCart instances should not affect
     // each other. Create cart A, add 2 items to it. Then create a
     // brand new cart B and add 1 item to it. Does cart B's subtotal
     // look right, or does it seem to "remember" cart A's items?
-    //
+
 }
