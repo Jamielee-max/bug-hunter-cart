@@ -80,16 +80,13 @@ public class ShoppingCart {
     }
 
     public double getTax() {
-        float subtotalF = (float) getSubtotal();
-        float taxF = subtotalF * (float) TAX_RATE;
-        return taxF;
+        return getSubtotal() * TAX_RATE;
     }
 
     public double getShippingCost() {
         if (getSubtotal() >= FREE_SHIPPING_THRESHOLD) {
             return 0.0;
         }
-
         return FLAT_SHIPPING_COST;
     }
 
@@ -98,6 +95,10 @@ public class ShoppingCart {
     }
 
     public String getMostExpensiveItemName() {
+        if (items.isEmpty()) {
+            throw new IllegalStateException("Cannot find most expensive item: cart is empty");
+        }
+
         CartItem mostExpensive = null;
         for (CartItem item : items.values()) {
             if (mostExpensive == null || item.getUnitPrice() > mostExpensive.getUnitPrice()) {
