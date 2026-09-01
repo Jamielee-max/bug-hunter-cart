@@ -130,7 +130,19 @@ class ShoppingCartTest {
     // gracefully (or return something sensible) instead of throwing an
     // unchecked NullPointerException. Decide what the *correct*
     // behaviour should be, then write a test for it.
+       @Test
+     void getMostExpensiveItemName_throwsClearExceptionWhenCartIsEmpty() {
+          ShoppingCart cart = new ShoppingCart(stock);
     //
+    //        // Cart has no items added. Calling this should fail with a clear,
+    //        // documented exception (IllegalStateException) explaining why --
+    //        // not an unchecked NullPointerException with no context.
+           IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                   cart::getMostExpensiveItemName);
+
+           assertTrue(thrown.getMessage().toLowerCase().contains("empty"),
+                   "Exception message should explain that the cart is empty");
+        }
 
     //
     // TODO 5: Two separate ShoppingCart instances should not affect
