@@ -142,4 +142,29 @@ class ShoppingCartTest {
     // brand new cart B and add 1 item to it. Does cart B's subtotal
     // look right, or does it seem to "remember" cart A's items?
 
+    @Test
+    void newCustomerDiscount_isIndependentPerCartInstance() {
+        // Cart A uses up its own "first 2 items" discount slots.
+        Map<String, Integer> stockA = new HashMap<>();
+        stockA.put("Widget", 10);
+        stockA.put("Gadget", 10);
+        ShoppingCart cartA = new ShoppingCart(stockA);
+        cartA.addItem("Widget", 10.00, 1);
+        cartA.addItem("Gadget", 20.00, 1);
+
+        // Cart B is a brand new cart. From its own point of view, this is
+        // the FIRST item it has ever added, so it should qualify for the
+        // new-customer discount independently of what cart A did.
+        Map<String, Integer> stockB = new HashMap<>();
+        stockB.put("Gizmo", 10);
+        ShoppingCart cartB = new ShoppingCart(stockB);
+        cartB.addItem("Gizmo", 30.00, 1);
+
+        double expectedDiscount = 30.00 * 0.20; // 6.00, since this is cart B's first item
+        double expectedSubtotal = 30.00 - expectedDiscount; // 24.00
+
+        assertEquals(expectedSubtotal, cartB.getSubtotal(), 0.001,
+                "Cart B's discount should be based on its own items, not leftover state from cart A");
+    }
+
 }
