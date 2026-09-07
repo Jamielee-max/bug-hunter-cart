@@ -9,11 +9,19 @@ public class CartItem {
     private final String productName;
     private final double unitPrice;
     private int quantity;
+    private final String sku;
+    private final String category;
 
     public CartItem(String productName, double unitPrice, int quantity) {
+        this(productName, unitPrice, quantity, null, null);
+    }
+
+    public CartItem(String productName, double unitPrice, int quantity, String sku, String category) {
         this.productName = productName;
         this.unitPrice = unitPrice;
         this.quantity = quantity;
+        this.sku = sku;
+        this.category = category;
     }
 
     public void addQuantity(int amount) {
@@ -34,5 +42,13 @@ public class CartItem {
 
     public double getLineTotal() {
         return unitPrice * quantity;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public String getCategory() {
+        return category;
     }
 }
