@@ -22,8 +22,9 @@ public class ShoppingCart {
     private static final int NEW_CUSTOMER_DISCOUNT_ITEM_COUNT = 2;
 
     // Tracks the order items were added in, so the "first 2 items" discount
-    // knows which ones to apply to.
-    private static List<CartItem> insertionOrder = new ArrayList<>();
+    // knows which ones to apply to. Instance field: each cart tracks its own
+    // insertion order independently.
+    private final List<CartItem> insertionOrder = new ArrayList<>();
 
     private final Map<String, CartItem> items = new LinkedHashMap<>();
     private final Map<String, Integer> stock;
