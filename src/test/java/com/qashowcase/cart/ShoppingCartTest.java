@@ -54,14 +54,13 @@ class ShoppingCartTest {
     void newCustomerDiscount_appliesToFirstTwoItemsOnly() {
         ShoppingCart cart = new ShoppingCart(stock);
 
-        // Prices chosen to make the expected math easy to verify by hand.
-        cart.addItem("Widget", 10.00, 1);   // 1st item added -> should be discounted
-        cart.addItem("Gadget", 20.00, 1);   // 2nd item added -> should be discounted
-        cart.addItem("Gizmo", 30.00, 1);    // 3rd item added -> should NOT be discounted
+        cart.addItem("Widget", 10.00, 1);
+        cart.addItem("Gadget", 20.00, 1);
+        cart.addItem("Gizmo", 30.00, 1);
 
-        double rawSubtotal = 10.00 + 20.00 + 30.00; // 60.00
-        double expectedDiscount = (10.00 + 20.00) * 0.20; // only first 2 items, 20% off = 6.00
-        double expectedSubtotal = rawSubtotal - expectedDiscount; // 54.00
+        double rawSubtotal = 10.00 + 20.00 + 30.00;
+        double expectedDiscount = (10.00 + 20.00) * 0.20;
+        double expectedSubtotal = rawSubtotal - expectedDiscount;
 
         assertEquals(expectedSubtotal, cart.getSubtotal(), 0.001,
                 "Discount should only apply to the first 2 items added, not the 3rd");
@@ -69,67 +68,50 @@ class ShoppingCartTest {
 
     // TODO 2: Free shipping should kick in at exactly $50, not just
     // above it. Write a boundary test at precisely $50 subtotal.
-    // (Hint: watch out for TODO 1's discount affecting your subtotal
-    //  math while you set this test up.)
 
     @Test
     void shipping_isFreeWhenSubtotalIsExactlyThreshold() {
         ShoppingCart cart = new ShoppingCart(stock);
 
-        // Add 3+ items so the new-customer discount (fixed in TODO 1) is
-        // already "used up" and doesn't interfere with hitting $50 exactly.
-        cart.addItem("Widget", 10.00, 1);   // discounted
-        cart.addItem("Gadget", 20.00, 1);   // discounted
-        cart.addItem("Gizmo", 10.00, 1);    // not discounted (3rd item)
-
-        // rawSubtotal = 10 + 20 + 10 = 40.00
-        // discount = (10 + 20) * 0.20 = 6.00
-        // subtotal = 40.00 - 6.00 = 34.00 ... not quite $50, so add one more item
-
-        cart.addItem("Doohickey", 16.00, 1); // not discounted either
-
-        // rawSubtotal = 40 + 16 = 56.00
-        // subtotal = 56.00 - 6.00 = 50.00 exactly
+        cart.addItem("Widget", 10.00, 1);
+        cart.addItem("Gadget", 20.00, 1);
+        cart.addItem("Gizmo", 10.00, 1);
+        cart.addItem("Doohickey", 16.00, 1);
 
         assertEquals(50.00, cart.getSubtotal(), 0.001, "sanity check on subtotal math");
         assertEquals(0.0, cart.getShippingCost(), 0.001,
                 "Shipping should be free at exactly $50, not just above it");
     }
 
-    // TODO 3: Tax should be calculated precisely to the cent. Try a
-    // subtotal that's likely to expose floating point drift, e.g.
-    // something that doesn't divide evenly at 15% tax. Compare with
-    // assertEquals(expected, actual, delta) vs. exact equality —
-    // which one exposes the bug?
+    // TODO 3: Tax should be calculated precisely to the cent.
 
     @Test
     void tax_isPreciseToTheCent() {
         ShoppingCart cart = new ShoppingCart(stock);
 
-        // A single item, no discount interference, chosen so 15% tax
-        // doesn't land on a "clean" float value.
+        // Add two filler items first so they use up the "first 2 items"
+        // new-customer discount, leaving Widget's price untouched as the
+        // 3rd item -- otherwise this test's expected value doesn't
+        // account for the discount and looks like a false failure.
+        cart.addItem("Gadget", 5.00, 1);
+        cart.addItem("Doohickey", 5.00, 1);
         cart.addItem("Widget", 19.99, 1);
 
-        double expectedTax = 19.99 * 0.15; // 2.9985 -> should round/behave like 2.9985 in double precision
+        double discountedFillerTotal = (5.00 + 5.00) - (5.00 + 5.00) * 0.20; // 8.00
+        double subtotal = discountedFillerTotal + 19.99; // 27.99
+        double expectedTax = subtotal * 0.15;
 
-        // Using a tight delta here is the point: float math tends to drift
-        // by more than this at the cent level, so this should catch it.
         assertEquals(expectedTax, cart.getTax(), 0.0001,
                 "Tax should match double-precision arithmetic, not drift due to float rounding");
     }
 
     // TODO 4: getMostExpensiveItemName() on an empty cart should fail
-    // gracefully (or return something sensible) instead of throwing an
-    // unchecked NullPointerException. Decide what the *correct*
-    // behaviour should be, then write a test for it.
+    // gracefully instead of throwing an unchecked NullPointerException.
 
     @Test
     void getMostExpensiveItemName_throwsClearExceptionWhenCartIsEmpty() {
         ShoppingCart cart = new ShoppingCart(stock);
 
-        // Cart has no items added. Calling this should fail with a clear,
-        // documented exception (IllegalStateException) explaining why --
-        // not an unchecked NullPointerException with no context.
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
                 cart::getMostExpensiveItemName);
 
@@ -138,13 +120,10 @@ class ShoppingCartTest {
     }
 
     // TODO 5: Two separate ShoppingCart instances should not affect
-    // each other. Create cart A, add 2 items to it. Then create a
-    // brand new cart B and add 1 item to it. Does cart B's subtotal
-    // look right, or does it seem to "remember" cart A's items?
+    // each other.
 
     @Test
     void newCustomerDiscount_isIndependentPerCartInstance() {
-        // Cart A uses up its own "first 2 items" discount slots.
         Map<String, Integer> stockA = new HashMap<>();
         stockA.put("Widget", 10);
         stockA.put("Gadget", 10);
@@ -152,19 +131,44 @@ class ShoppingCartTest {
         cartA.addItem("Widget", 10.00, 1);
         cartA.addItem("Gadget", 20.00, 1);
 
-        // Cart B is a brand new cart. From its own point of view, this is
-        // the FIRST item it has ever added, so it should qualify for the
-        // new-customer discount independently of what cart A did.
         Map<String, Integer> stockB = new HashMap<>();
         stockB.put("Gizmo", 10);
         ShoppingCart cartB = new ShoppingCart(stockB);
         cartB.addItem("Gizmo", 30.00, 1);
 
-        double expectedDiscount = 30.00 * 0.20; // 6.00, since this is cart B's first item
-        double expectedSubtotal = 30.00 - expectedDiscount; // 24.00
+        double expectedDiscount = 30.00 * 0.20;
+        double expectedSubtotal = 30.00 - expectedDiscount;
 
         assertEquals(expectedSubtotal, cartB.getSubtotal(), 0.001,
                 "Cart B's discount should be based on its own items, not leftover state from cart A");
+    }
+
+    // ---------------------------------------------------------------
+    // NEW FEATURE: wiring sku/category through to ShoppingCart.addItem().
+    // Written test-first, same as the bugs above.
+    // ---------------------------------------------------------------
+    @Test
+    void addItem_withSkuAndCategory_storesThemOnTheCartItem() {
+        ShoppingCart cart = new ShoppingCart(stock);
+
+        cart.addItem("Widget", 9.99, 1, "SKU-1234", "Hardware");
+
+        CartItem stored = cart.getItem("Widget");
+        assertNotNull(stored, "Expected to find the item we just added");
+        assertEquals("SKU-1234", stored.getSku());
+        assertEquals("Hardware", stored.getCategory());
+    }
+
+    @Test
+    void addItem_withoutSkuAndCategory_stillWorksAsBefore() {
+        ShoppingCart cart = new ShoppingCart(stock);
+
+        cart.addItem("Widget", 9.99, 1);
+
+        CartItem stored = cart.getItem("Widget");
+        assertNotNull(stored);
+        assertNull(stored.getSku());
+        assertNull(stored.getCategory());
     }
 
 }

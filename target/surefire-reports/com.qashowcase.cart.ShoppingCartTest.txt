@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: com.qashowcase.cart.ShoppingCartTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.026 s <<< FAILURE! -- in com.qashowcase.cart.ShoppingCartTest
+com.qashowcase.cart.ShoppingCartTest.tax_isPreciseToTheCent -- Time elapsed: 0.008 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: Tax should match double-precision arithmetic, not drift due to float rounding ==> expected: <2.9984999999999995> but was: <2.3987999999999996>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:86)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1024)
+	at com.qashowcase.cart.ShoppingCartTest.tax_isPreciseToTheCent(ShoppingCartTest.java:117)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
