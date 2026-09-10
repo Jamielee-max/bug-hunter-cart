@@ -34,6 +34,10 @@ public class ShoppingCart {
     }
 
     public void addItem(String productName, double unitPrice, int quantity) {
+        addItem(productName, unitPrice, quantity, null, null);
+    }
+
+    public void addItem(String productName, double unitPrice, int quantity, String sku, String category) {
         Integer available = stock.get(productName);
         if (available == null || available < quantity) {
             throw new IllegalStateException("Not enough stock for " + productName);
@@ -42,12 +46,16 @@ public class ShoppingCart {
         if (items.containsKey(productName)) {
             items.get(productName).addQuantity(quantity);
         } else {
-            CartItem newItem = new CartItem(productName, unitPrice, quantity);
+            CartItem newItem = new CartItem(productName, unitPrice, quantity, sku, category);
             items.put(productName, newItem);
             insertionOrder.add(newItem);
         }
 
         stock.put(productName, available - quantity);
+    }
+
+    public CartItem getItem(String productName) {
+        return items.get(productName);
     }
 
     public void removeItem(String productName) {
