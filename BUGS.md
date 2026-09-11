@@ -1,4 +1,5 @@
 ## Bug Log
+## Bug Log
 
 Fill in one row per bug as you find it. Keep descriptions short — the test
 itself is the real evidence.
@@ -9,7 +10,7 @@ itself is the real evidence.
 | 2 | Free shipping only triggered above $50, not at exactly $50 (wrong boundary operator) | `shipping_isFreeWhenSubtotalIsExactlyThreshold` | Changed `getSubtotal() > FREE_SHIPPING_THRESHOLD` to `getSubtotal() >= FREE_SHIPPING_THRESHOLD` |
 | 3 | Tax calculation drifted from expected value due to casting through `float` instead of using `double` throughout | `tax_isPreciseToTheCent` | Removed the `float` casts in `getTax()`; now computes `getSubtotal() * TAX_RATE` directly in `double` |
 | 4 | `getMostExpensiveItemName()` threw an unchecked NullPointerException on an empty cart, with no explanation | `getMostExpensiveItemName_throwsClearExceptionWhenCartIsEmpty` | Added an explicit empty-cart check that throws `IllegalStateException("Cannot find most expensive item: cart is empty")` |
-| 5 | | | |
+| 5 | `insertionOrder` was declared `static`, so it was shared across every `ShoppingCart` instance — a second cart's items leaked into the first cart's discount calculation | `newCustomerDiscount_isIndependentPerCartInstance` | Changed `insertionOrder` from a `static` field to an instance field, so each cart tracks its own insertion order |
 
 ## Reflection (optional but recommended for a report/submission)
 
