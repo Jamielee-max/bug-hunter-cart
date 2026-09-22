@@ -9,29 +9,19 @@ import java.util.Map;
  * A simple shopping cart with stock checking, a "new customer" discount,
  * tax, and free shipping over a threshold.
  *
- * <p>NOTE: this class currently mixes inventory tracking, pricing rules,
- * and cart-contents management in one place — see project notes on
- * splitting these into {@code Inventory} / {@code PricingCalculator}
- * for a cleaner separation of concerns.</p>
+ * <p>Delegates stock management to {@link Inventory} and pricing math to
+ * {@link PricingCalculator}, keeping this class focused on cart contents.</p>
  */
 public class ShoppingCart {
 
-    private static final double TAX_RATE = 0.15;
-    private static final double FREE_SHIPPING_THRESHOLD = 50.0;
-    private static final double FLAT_SHIPPING_COST = 5.99;
-    private static final double NEW_CUSTOMER_DISCOUNT_RATE = 0.20;
-    private static final int NEW_CUSTOMER_DISCOUNT_ITEM_COUNT = 2;
-
     private final List<CartItem> insertionOrder = new ArrayList<>();
     private final Map<String, CartItem> items = new LinkedHashMap<>();
-    private final Map<String, Integer> stock;
+    private final Inventory inventory;
+    private final PricingCalculator pricingCalculator = new PricingCalculator();
 
-    /**
-     * @param stockLevels available stock per product name. Note: this cart
-     *                    mutates the map it's given as items are added.
-     */
+    /** @param stockLevels available stock per product name */
     public ShoppingCart(Map<String, Integer> stockLevels) {
-        this.stock = stockLevels;
+        this.inventory = new Inventory(stockLevels);
     }
 
     /**
@@ -44,16 +34,13 @@ public class ShoppingCart {
     }
 
     /**
-     * Adds an item to the cart, decrementing stock. If the product is
+     * Adds an item to the cart, reserving stock. If the product is
      * already in the cart, increases its quantity instead of duplicating it.
      *
      * @throws IllegalStateException if there isn't enough stock for the requested quantity
      */
     public void addItem(String productName, double unitPrice, int quantity, String sku, String category) {
-        Integer available = stock.get(productName);
-        if (available == null || available < quantity) {
-            throw new IllegalStateException("Not enough stock for " + productName);
-        }
+        inventory.reserve(productName, quantity);
 
         if (items.containsKey(productName)) {
             items.get(productName).addQuantity(quantity);
@@ -62,8 +49,6 @@ public class ShoppingCart {
             items.put(productName, newItem);
             insertionOrder.add(newItem);
         }
-
-        stock.put(productName, available - quantity);
     }
 
     /** @return the cart item for this product, or {@code null} if not present */
@@ -88,39 +73,22 @@ public class ShoppingCart {
 
     /** @return subtotal after the new-customer discount, before tax/shipping */
     public double getSubtotal() {
-        double rawSubtotal = 0.0;
-        for (CartItem item : items.values()) {
-            rawSubtotal += item.getLineTotal();
-        }
-        return rawSubtotal - newCustomerDiscountAmount();
-    }
-
-    /** @return 20% off the unit price of the first two items added to the cart */
-    private double newCustomerDiscountAmount() {
-        double discount = 0.0;
-        for (int i = 0; i < NEW_CUSTOMER_DISCOUNT_ITEM_COUNT && i < insertionOrder.size(); i++) {
-            CartItem item = insertionOrder.get(i);
-            discount += item.getUnitPrice() * NEW_CUSTOMER_DISCOUNT_RATE;
-        }
-        return discount;
+        return pricingCalculator.getSubtotal(insertionOrder);
     }
 
     /** @return 15% tax on the discounted subtotal */
     public double getTax() {
-        return getSubtotal() * TAX_RATE;
+        return pricingCalculator.getTax(insertionOrder);
     }
 
     /** @return $0 if subtotal is at or above the free-shipping threshold, otherwise the flat rate */
     public double getShippingCost() {
-        if (getSubtotal() >= FREE_SHIPPING_THRESHOLD) {
-            return 0.0;
-        }
-        return FLAT_SHIPPING_COST;
+        return pricingCalculator.getShippingCost(insertionOrder);
     }
 
     /** @return subtotal + tax + shipping */
     public double getTotal() {
-        return getSubtotal() + getTax() + getShippingCost();
+        return pricingCalculator.getTotal(insertionOrder);
     }
 
     /**
