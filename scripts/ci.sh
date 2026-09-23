@@ -1,17 +1,13 @@
 #!/usr/bin/env bash
 #
-# Local "CI" runner: runs the test suite and enforces a minimum JaCoCo
-# line-coverage percentage, failing the build (non-zero exit) if either
-# the tests fail or coverage drops below the threshold.
+# Runs the tests and checks the JaCoCo coverage percentage. Exits non-zero
+# if tests fail or coverage is below the threshold.
 #
-# Usage:
-#   scripts/ci.sh [THRESHOLD]                 # run mvn test, then check coverage
-#   scripts/ci.sh --coverage-only [THRESHOLD] # skip running tests, just check
-#                                              # the coverage report from the
-#                                              # last test run
+# scripts/ci.sh [THRESHOLD]                 -> runs mvn test, then checks coverage
+# scripts/ci.sh --coverage-only [THRESHOLD] -> skips the test run, just checks
+#                                               the coverage from the last run
 #
-# THRESHOLD is a whole number percentage (default: 80).
-
+# THRESHOLD defaults to 80.
 set -euo pipefail
 
 COVERAGE_ONLY=false
