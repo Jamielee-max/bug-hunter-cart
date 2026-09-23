@@ -170,5 +170,61 @@ class ShoppingCartTest {
         assertNull(stored.getSku());
         assertNull(stored.getCategory());
     }
+    @Test
+    void removeItem_removesItemFromCart() {
+        ShoppingCart cart = new ShoppingCart(stock);
+        cart.addItem("Widget", 9.99, 1);
 
+        cart.removeItem("Widget");
+
+        assertNull(cart.getItem("Widget"), "Item should no longer be in the cart after removal");
+    }
+
+    @Test
+    void getItemCount_reflectsNumberOfDistinctProducts() {
+        ShoppingCart cart = new ShoppingCart(stock);
+        cart.addItem("Widget", 9.99, 1);
+        cart.addItem("Gadget", 19.99, 1);
+
+        assertEquals(2, cart.getItemCount());
+    }
+
+    @Test
+    void isEmpty_trueForNewCart_falseAfterAddingItem() {
+        ShoppingCart cart = new ShoppingCart(stock);
+        assertTrue(cart.isEmpty());
+
+        cart.addItem("Widget", 9.99, 1);
+
+        assertFalse(cart.isEmpty());
+    }
+
+    @Test
+    void getShippingCost_isFlatRateWhenBelowThreshold() {
+        ShoppingCart cart = new ShoppingCart(stock);
+        cart.addItem("Widget", 10.00, 1);
+
+        assertEquals(5.99, cart.getShippingCost(), 0.001,
+                "Shipping should be the flat rate when subtotal is below the free-shipping threshold");
+    }
+
+    @Test
+    void getTotal_isSubtotalPlusTaxPlusShipping() {
+        ShoppingCart cart = new ShoppingCart(stock);
+        cart.addItem("Widget", 10.00, 1);
+
+        double expectedTotal = cart.getSubtotal() + cart.getTax() + cart.getShippingCost();
+
+        assertEquals(expectedTotal, cart.getTotal(), 0.001);
+    }
+
+    @Test
+    void getMostExpensiveItemName_returnsHighestPricedItem() {
+        ShoppingCart cart = new ShoppingCart(stock);
+        cart.addItem("Widget", 10.00, 1);
+        cart.addItem("Gadget", 25.00, 1);
+        cart.addItem("Gizmo", 15.00, 1);
+
+        assertEquals("Gadget", cart.getMostExpensiveItemName());
+    }
 }
