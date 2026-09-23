@@ -9,8 +9,8 @@ import java.util.Map;
  * A simple shopping cart with stock checking, a "new customer" discount,
  * tax, and free shipping over a threshold.
  *
- * <p>Delegates stock management to {@link Inventory} and pricing math to
- * {@link PricingCalculator}, keeping this class focused on cart contents.</p>
+ * Stock checks are handled by {@link Inventory} and pricing by
+ * {@link PricingCalculator}, so this class just manages what's in the cart.
  */
 public class ShoppingCart {
 
