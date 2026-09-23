@@ -3,8 +3,8 @@ package com.qashowcase.cart;
 import java.util.List;
 
 /**
- * Computes cart pricing — the new-customer discount, tax, and shipping —
- * based on a cart's items in the order they were added.
+ * Works out the pricing for a cart: the new-customer discount, tax, and
+ * shipping cost, based on the order items were added in.
  */
 public class PricingCalculator {
 
